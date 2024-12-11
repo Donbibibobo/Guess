@@ -41,6 +41,16 @@ jobs:
         run: |
           git checkout -b "stg/action-test"
 
+      - name: Be Check git status
+        run: |
+          git status
+
+      - name: Be Check changelog file
+        run: |
+          echo "檢查 changelog.txt 是否存在"
+          ls -l changelog.txt
+          cat changelog.txt
+
       - name: "Build Changelog"
         id: changelog_builder
         uses: mikepenz/release-changelog-builder-action@v3.7.2
@@ -49,6 +59,16 @@ jobs:
           toTag: dd060c7f9bc489771357275fea2bf22cdb92c579
           configuration: ".github/staging_changelog_configs.json"
           outputFile: "changelog.txt"
+
+      - name: Af Check git status
+        run: |
+          git status
+
+      - name: Af Check changelog file
+        run: |
+          echo "檢查 changelog.txt 是否存在"
+          ls -l changelog.txt
+          cat changelog.txt
 
       - name: Commit files
         run: |
@@ -60,3 +80,8 @@ jobs:
             git add .
             git commit -m "Update changelog"            
           # fi
+          
+      - name: "Push changes"
+        uses: ad-m/github-push-action@master
+        with:
+            branch: "stg/action-test"
