@@ -1,0 +1,9 @@
+{
+  "categories": [],
+  "template": "${{UNCATEGORIZED}}",
+  "pr_template": "- #{{TITLE}}",
+  "empty_template": "No changes",
+  "ignore_labels": [
+    "no-changelog", "document", "ci-cd"
+  ]
+}
