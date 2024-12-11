@@ -57,7 +57,16 @@ jobs:
         with:
           fromTag: 952ce4a04b9f919655a0fc39de5bb797cd897b6b
           toTag: dd060c7f9bc489771357275fea2bf22cdb92c579
-          configuration: ".github/staging_changelog_configs.json"
+          configurationJson: |
+            {
+              "categories": [],
+              "template": "${{UNCATEGORIZED}}",
+              "pr_template": "- #{{TITLE}}",
+              "empty_template": "No changes",
+              "ignore_labels": [
+                "no-changelog", "document", "ci-cd"
+              ]
+            }
           outputFile: "changelog.txt"
 
       - name: Af Check git status
