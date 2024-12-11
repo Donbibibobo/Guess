@@ -53,8 +53,6 @@ jobs:
       - name: Commit files
         run: |
           # if [ ! -z "$(git status --porcelain)" ]; then 
-            git config user.email ${{ secrets.ACTION_BOT_EMAIL }}
-            git config user.name ${{ secrets.ACTION_BOT_NAME }}
             git add .
             git commit -m "Update changelog"            
           # fi
