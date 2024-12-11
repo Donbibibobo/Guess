@@ -91,7 +91,7 @@ jobs:
             git commit -m "Update changelog"            
           fi
           
-      - name: "Push changes"
-        uses: ad-m/github-push-action@master
-        with:
-            branch: "stg/action-test"
+      # - name: "Push changes"
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #       branch: "stg/action-test"
