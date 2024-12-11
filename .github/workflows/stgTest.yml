@@ -57,7 +57,8 @@ jobs:
         with:
           fromTag: 952ce4a04b9f919655a0fc39de5bb797cd897b6b
           toTag: dd060c7f9bc489771357275fea2bf22cdb92c579
-          configuration: "staging_changelog_configs.json"
+          # configuration: "staging_changelog_configs.json"
+        
           outputFile: "changelog.txt"
 
       - name: Af Check git status
