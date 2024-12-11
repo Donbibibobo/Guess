@@ -53,7 +53,7 @@ jobs:
       - name: Commit files
         run: |
           echo "開始跑 Commit files"
-          if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then 
+          if [ ! -z "$(git status --porcelain)" ]; then 
             echo "暫存不為空，加入檔案"
             git config user.email "you@example.com"
             git config user.name "Your Name"
