@@ -1,0 +1,4 @@
+- [TapPay] Payment TapPay hint.
+- [BugFix]  Exclude issues caused by empty buildSrc
+- [TapPay] Payment TapPay hint UI
+- [ZOEKIT-14444] modify smartLink tracking logic
