@@ -56,13 +56,21 @@ jobs:
           git add changelog.txt
           git commit -m "Update changelog for staging/${{ inputs.target_version }}"
       
+      - name: "Print changelog after commit"
+        run: |
+          echo "Content of changelog.txt after commit:"
+          while IFS= read -r line; do
+            echo "$line"
+          done < changelog.txt
+
       - name: Extract version from branch name
         id: extract-version
         run: |
-          if [[ ${{ env.staging_branch }} =~ staging\/([0-9]+\.[0-9]+\.[0-9]+-[0-9]+) ]]; then
+          staging_branch="${{ env.staging_branch }}"
+          if [[ $staging_branch =~ staging\/([0-9]+\.[0-9]+\.[0-9]+-[0-9]+) ]]; then
             version=${BASH_REMATCH[1]}
           else
-            echo "Error: Cannot extract version from branch name $branch_name"
+            echo "Error: Cannot extract version from branch name $staging_branch"
             exit 1
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
@@ -75,5 +83,7 @@ jobs:
           echo "=========================="
           echo "Eatigo-stg-${{ steps.extract-version.outputs.version }} 已發布至 Firebase"
           echo "此次更新內容:"
-          echo "$CHANGELOG"
+          while IFS= read -r line; do
+            echo "$line"
+          done <<< "$CHANGELOG"
           echo "=========================="
