@@ -1,8 +1,9 @@
 name: Test Action
 
 on:
-  pull_request:
-    branches: [ master ]
+  push:
+    branches:
+      - stg/testing-action
 
 jobs:
   test_job1:
