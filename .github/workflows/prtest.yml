@@ -1,12 +1,8 @@
 name: Test Action
 
 on:
-  workflow_dispatch:
-    inputs:
-      input_string:
-        description: "write some string"
-        required: true
-        type: string
+  pull_request:
+    branches: [ master ]
 
 jobs:
   test_job1:
