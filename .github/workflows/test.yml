@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 以下是 test_staging_version_create 更新前內容 ================
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: "Create stg branch"
+        id: new-branch
+        run: |
+          git checkout -b staging/test-cicd-01
 #      - name: "Arrange change-log commit"
 #        run: |
 #          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
@@ -61,6 +69,14 @@ jobs:
 
 
       # 以下是 test_staging_version_create 更新後內容 ================
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: "Create stg branch"
+        id: new-branch
+        run: |
+          git checkout -b staging/test-cicd-02
 #      - name: "Arrange change-log commit"
 #        id: commit_range2
 #        run: |
