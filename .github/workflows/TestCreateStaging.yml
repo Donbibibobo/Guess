@@ -1,0 +1,75 @@
+name: Test Create Staging PR
+run-name: Create Staging PR ${{ inputs.target_version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: "The target version (x.x.x-x)"
+        type: string
+        required: true
+
+env:
+  staging_branch: staging/${{ inputs.target_version }}
+
+jobs:
+  Create-staging-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: "Create staging branch"
+        id: create-branch
+        run: |
+          git checkout -b ${{ env.staging_branch }}
+          echo "Created branch: ${{ env.staging_branch }}"
+
+      - name: "Build Changelog"
+        id: changelog_builder
+        uses: mikepenz/release-changelog-builder-action@v3.7.2
+        with:
+          fromTag: 952ce4a04b9f919655a0fc39de5bb797cd897b6b
+          toTag: dd060c7f9bc489771357275fea2bf22cdb92c579
+          configurationJson: |
+            {
+              "categories": [],
+              "template": "#{{UNCATEGORIZED}}",
+              "pr_template": "- #{{TITLE}}",
+              "empty_template": "No changes",
+              "ignore_labels": [
+                "no-changelog", "document", "ci-cd"
+              ]
+            }
+          outputFile: "changelog.txt"
+
+      - name: "Print changelog"
+        run: |
+          cat changelog.txt
+
+      - name: "Commit and push changes"
+        run: |
+          git config user.email "test-user@example.com"
+          git config user.name "Test User"
+          git add changelog.txt
+          git commit -m "Update changelog for staging/${{ inputs.target_version }}"
+          git push origin ${{ env.staging_branch }}
+
+      - name: "Create Pull Request"
+        uses: actions/github-script@v6
+        env:
+          BASE: "master"
+          HEAD: ${{ env.staging_branch }}
+        with:
+          script: |
+            const { data: pull } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Staging APP ${{ inputs.target_version }} version rollout`,
+              head: process.env.HEAD,
+              base: process.env.BASE,
+              body: "This is a test PR for staging rollout."
+            });
+            console.log(`Pull Request created: ${pull.html_url}`);
