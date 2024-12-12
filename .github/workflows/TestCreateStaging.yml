@@ -55,21 +55,25 @@ jobs:
           git config user.name "Test User"
           git add changelog.txt
           git commit -m "Update changelog for staging/${{ inputs.target_version }}"
-          git push origin ${{ env.staging_branch }}
+      
+      - name: Extract version from branch name
+        id: extract-version
+        run: |
+          if [[ ${{ env.staging_branch }} =~ staging\/([0-9]+\.[0-9]+\.[0-9]+-[0-9]+) ]]; then
+            version=${BASH_REMATCH[1]}
+          else
+            echo "Error: Cannot extract version from branch name $branch_name"
+            exit 1
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
 
-      - name: "Create Pull Request"
-        uses: actions/github-script@v6
-        env:
-          BASE: "master"
-          HEAD: ${{ env.staging_branch }}
-        with:
-          script: |
-            const { data: pull } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Staging APP ${{ inputs.target_version }} version rollout`,
-              head: process.env.HEAD,
-              base: process.env.BASE,
-              body: "This is a test PR for staging rollout."
-            });
-            console.log(`Pull Request created: ${pull.html_url}`);
+      - name: Generate Slack message
+        id: slack-msg
+        run: |
+          CHANGELOG=$(awk '$1=$1' ORS='\\n' ./changelog.txt)
+          echo "Simulated Slack Message:"
+          echo "=========================="
+          echo "Eatigo-stg-${{ steps.extract-version.outputs.version }} 已發布至 Firebase"
+          echo "此次更新內容:"
+          echo "$CHANGELOG"
+          echo "=========================="
