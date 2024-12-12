@@ -31,8 +31,8 @@ jobs:
         id: changelog_builder
         uses: mikepenz/release-changelog-builder-action@v3.7.2
         with:
-          fromTag: 952ce4a04b9f919655a0fc39de5bb797cd897b6b
-          toTag: dd060c7f9bc489771357275fea2bf22cdb92c579
+          fromTag: da9094d19d346ace85104be9e9706fba7bece961
+          toTag: 4d37a7eb13951703e70c5319cbdaba9876e15900
           configurationJson: |
             {
               "categories": [],
