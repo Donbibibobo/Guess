@@ -10,12 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 以下是 test_staging_version_create 更新前內容 ================
-      - name: "Arrange change-log commit"
-        id: commit_range1
-        run: |
-          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
-          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
-          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
+#      - name: "Arrange change-log commit"
+#        run: |
+#          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+#          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+#          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
 
       - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
         run: |
@@ -28,7 +27,7 @@ jobs:
           fi
 
       - name: "Build Changelog"
-        id: changelog_builder1
+#        id: changelog_builder1
         uses: mikepenz/release-changelog-builder-action@v3.7.2
         with:
           fromTag: da9094d19d346ace85104be9e9706fba7bece961
@@ -62,12 +61,12 @@ jobs:
 
 
       # 以下是 test_staging_version_create 更新後內容 ================
-      - name: "Arrange change-log commit"
-        id: commit_range2
-        run: |
-          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
-          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
-          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
+#      - name: "Arrange change-log commit"
+#        id: commit_range2
+#        run: |
+#          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+#          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+#          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
 
       - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
         run: |
@@ -80,7 +79,7 @@ jobs:
           fi
 
       - name: "Build Changelog"
-        id: changelog_builder2
+#        id: changelog_builder2
         uses: mikepenz/release-changelog-builder-action@v3.7.2
         with:
           fromTag: da9094d19d346ace85104be9e9706fba7bece961
