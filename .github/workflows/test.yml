@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: "Create stg branch"
-#        id: new-branch
+        id: new-branch
         run: |
           git checkout -b staging/test-cicd-01
 #      - name: "Arrange change-log commit"
@@ -75,7 +75,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: "Create stg branch"
-#        id: new-branch
+        id: new-branch
         run: |
           git checkout -b staging/test-cicd-02
 #      - name: "Arrange change-log commit"
