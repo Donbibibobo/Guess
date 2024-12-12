@@ -6,33 +6,117 @@ on:
       - stg/testing-action
 
 jobs:
-  test_job1:
+  test_staging_version_create:
     runs-on: ubuntu-latest
     steps:
-      - name: Print Input String
-        run: echo "You entered:${{ inputs.input_string }}"
-
-      - name: Convert to Uppercase and Output
-
+      # 以下是 test_staging_version_create 更新前內容 ================
+      - name: "Arrange change-log commit"
+        id: commit_range
         run: |
-          INPUT="${{ inputs.input_string }}"
-          OUTPUT=$(echo $INPUT | tr '[:lower:]' '[:upper:]')
-          echo "Converted to uppercase: $OUTPUT"
-          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
+          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
 
-      - name: Check Result
-        run: echo "The final result is:${{ steps.test_job1.outputs.result }}"
-
-      - name: Print Input String
-        run: echo "You entered:${{ inputs.input_string }}"
-
-      - name: Convert to Uppercase and Output
-
+      - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
         run: |
-          INPUT="${{ inputs.input_string }}"
-          OUTPUT=$(echo $INPUT | tr '[:lower:]' '[:upper:]')
-          echo "Converted to uppercase: $OUTPUT"
-          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
 
-      - name: Check Result
-        run: echo "The final result is:${{ steps.test_job1.outputs.result }}"
+      - name: "Build Changelog"
+        id: changelog_builder
+        uses: mikepenz/release-changelog-builder-action@v3.7.2
+        with:
+          fromTag: da9094d19d346ace85104be9e9706fba7bece961
+          toTag: 4d37a7eb13951703e70c5319cbdaba9876e15900
+          configuration: ".github/staging_changelog_configs.json"
+          outputFile: "changelog.txt"
+
+      - name: "[For Information] Check changelog.txt after Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "[For Information] Check git status before commit"         # 邏輯檢查
+        run: |
+          echo "Checking git status (Before Commit)..."
+          git status
+
+      - name: Commit files
+        run: |
+          if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then 
+            git config user.email ${{ secrets.ACTION_BOT_EMAIL }}
+            git config user.name ${{ secrets.ACTION_BOT_NAME }}
+            git add .
+            git commit -m "Update changelog"            
+          fi
+
+
+      # 以下是 test_staging_version_create 更新後內容 ================
+      - name: "Arrange change-log commit"
+        id: commit_range
+        run: |
+          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "Build Changelog"
+        id: changelog_builder
+        uses: mikepenz/release-changelog-builder-action@v3.7.2
+        with:
+          fromTag: da9094d19d346ace85104be9e9706fba7bece961
+          toTag: 4d37a7eb13951703e70c5319cbdaba9876e15900
+          configurationJson: |
+            {
+              "categories": [],
+              "template": "#{{UNCATEGORIZED}}",
+              "pr_template": "- #{{TITLE}}",
+              "empty_template": "No changes",
+              "ignore_labels": [
+                "no-changelog", "document", "ci-cd"
+              ]
+            }
+          outputFile: "changelog.txt"
+
+      - name: "[For Information] Check changelog.txt after Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "[For Information] Check git status before commit"         # 邏輯檢查
+        run: |
+          echo "Checking git status (Before Commit)..."
+          git status
+
+      - name: Commit files
+        run: |
+          if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then 
+            git config user.email ${{ secrets.ACTION_BOT_EMAIL }}
+            git config user.name ${{ secrets.ACTION_BOT_NAME }}
+            git add .
+            git commit -m "Update changelog"            
+          fi
