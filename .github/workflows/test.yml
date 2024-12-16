@@ -6,7 +6,7 @@ on:
       - stg/testing-action
 
 jobs:
-  test_staging_version_create_01:
+  test_staging_version_create_01: # ================================== 01
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repo"
@@ -16,7 +16,7 @@ jobs:
       - name: "Create stg branch"
         id: new-branch
         run: |
-          git checkout -b staging/test-cicd-01
+          git checkout -b staging/2.100.0-1
 #      - name: "Arrange change-log commit"
 #        run: |
 #          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
@@ -67,7 +67,7 @@ jobs:
           fi
 
 
-  test_staging_version_create_02:
+  test_staging_version_create_02: # ================================== 02
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repo"
@@ -77,7 +77,7 @@ jobs:
       - name: "Create stg branch"
         id: new-branch
         run: |
-          git checkout -b staging/test-cicd-02
+          git checkout -b staging/2.100.0-2
 #      - name: "Arrange change-log commit"
 #        id: commit_range2
 #        run: |
@@ -136,3 +136,20 @@ jobs:
             git add .
             git commit -m "Update changelog"            
           fi
+
+# ==========================================================================================================================================================================
+      - name: Extract version from branch name
+        id: extract-version
+        run: |
+          branch_name=$(git rev-parse --abbrev-ref HEAD)
+          if [[ $branch_name =~ staging\/([0-9]+\.[0-9]+\.[0-9]+-[0-9]+) ]]; then
+            version=${BASH_REMATCH[1]}
+          else
+            echo "Error: Cannot extract version from branch name $branch_name"
+            exit 1
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Check version"         # 邏輯檢查
+        run: |
+          echo "Extracted version is: ${{ steps.extract-version.outputs.version }}"
