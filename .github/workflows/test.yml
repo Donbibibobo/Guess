@@ -153,3 +153,23 @@ jobs:
       - name: "[For Information] Check version"         # 邏輯檢查
         run: |
           echo "Extracted version is: ${{ steps.extract-version.outputs.version }}"
+
+      - name: Create slack message
+        id: slack-msg
+        run: |
+          CHANGELOG=$(awk '$1=$1' ORS='\\n' ./changelog.txt)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Slack message output"
+        run: |
+          echo "=== Simulated Slack Message ==="
+          echo "Here comes the latest app 'Eatigo-stg-${{ steps.extract-version.outputs.version }}', you can download it via App Distribution!"
+          echo "--------------------------------"
+          echo "此次更新內容:"
+          echo "${{ steps.slack-msg.outputs.changelog }}"
+          echo "--------------------------------"
+          echo "cc QA"
+          echo "==============================="
