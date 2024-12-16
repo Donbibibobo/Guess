@@ -1,0 +1,175 @@
+name: test
+
+on:
+  push:
+    branches:
+      - stg/testing-action
+
+jobs:
+  test_staging_version_create_01: # ================================== 01
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: "Create stg branch"
+        id: new-branch
+        run: |
+          git checkout -b staging/2.100.0-1
+#      - name: "Arrange change-log commit"
+#        run: |
+#          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+#          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+#          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "Build Changelog"
+#        id: changelog_builder1
+        uses: mikepenz/release-changelog-builder-action@v3.7.2
+        with:
+          fromTag: da9094d19d346ace85104be9e9706fba7bece961
+          toTag: 4d37a7eb13951703e70c5319cbdaba9876e15900
+          configuration: ".github/staging_changelog_configs.json"
+          outputFile: "changelog.txt"
+
+      - name: "[For Information] Check changelog.txt after Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "[For Information] Check git status before commit"         # 邏輯檢查
+        run: |
+          echo "Checking git status (Before Commit)..."
+          git status
+
+      - name: Commit files
+        run: |
+          if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then 
+            git config user.email "you@example.com"
+            git config user.name "Your Name"
+            git add .
+            git commit -m "Update changelog"            
+          fi
+
+
+  test_staging_version_create_02: # ================================== 02
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: "Create stg branch"
+        id: new-branch
+        run: |
+          git checkout -b staging/2.100.0-2
+#      - name: "Arrange change-log commit"
+#        id: commit_range2
+#        run: |
+#          latestTag=$(git rev-list --tags --skip=0 --max-count=1)
+#          echo "fromTag=$latestTag" >> $GITHUB_OUTPUT
+#          echo "toTag=$GITHUB_REF" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Check changelog.txt before Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "Build Changelog"
+#        id: changelog_builder2
+        uses: mikepenz/release-changelog-builder-action@v3.7.2
+        with:
+          fromTag: da9094d19d346ace85104be9e9706fba7bece961
+          toTag: 4d37a7eb13951703e70c5319cbdaba9876e15900
+          configurationJson: |
+            {
+              "categories": [],
+              "template": "#{{UNCATEGORIZED}}",
+              "pr_template": "- #{{TITLE}}",
+              "empty_template": "No changes",
+              "ignore_labels": [
+                "no-changelog", "document", "ci-cd"
+              ]
+            }
+          outputFile: "changelog.txt"
+
+      - name: "[For Information] Check changelog.txt after Build Changelog"         # 邏輯檢查
+        run: |
+          echo "Checking changelog.txt (Before Build)..."
+          if [ -f "changelog.txt" ]; then
+            echo "changelog.txt exists (Before Build). Content:"
+            cat changelog.txt
+          else
+            echo "changelog.txt does not exist (Before Build)."
+          fi
+
+      - name: "[For Information] Check git status before commit"         # 邏輯檢查
+        run: |
+          echo "Checking git status (Before Commit)..."
+          git status
+
+      - name: Commit files
+        run: |
+          if [ ! -z "$(git status --untracked-files=no --porcelain)" ]; then 
+            git config user.email "you@example.com"
+            git config user.name "Your Name"
+            git add .
+            git commit -m "Update changelog"            
+          fi
+
+# ==========================================================================================================================================================================
+      - name: Extract version from branch name
+        id: extract-version
+        run: |
+          branch_name=$(git rev-parse --abbrev-ref HEAD)
+          if [[ $branch_name =~ staging\/([0-9]+\.[0-9]+\.[0-9]+-[0-9]+) ]]; then
+            version=${BASH_REMATCH[1]}
+          else
+            echo "Error: Cannot extract version from branch name $branch_name"
+            exit 1
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Check version"         # 邏輯檢查
+        run: |
+          echo "Extracted version is: ${{ steps.extract-version.outputs.version }}"
+
+      - name: Create slack message
+        id: slack-msg
+        run: |
+          CHANGELOG=$(awk 'NR>1{printf "\\n"} {printf "%s", $0}' ./changelog.txt)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: "[For Information] Slack message output"
+        run: |
+          echo "=== Simulated Slack Message ==="
+          echo "Here comes the latest app 'Eatigo-stg-${{ steps.extract-version.outputs.version }}', you can download it via App Distribution!"
+          echo "--------------------------------"
+          echo "此次更新內容:"
+          echo "${{ steps.slack-msg.outputs.changelog }}"
+          echo "--------------------------------"
+          echo "cc QA"
+          echo "==============================="

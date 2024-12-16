@@ -1,0 +1,24 @@
+name: PR Action
+
+on:
+  push:
+    branches:
+      - stg/testing-action
+
+jobs:
+  test_job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Input String
+        run: echo "You entered:${{ inputs.input_string }}"
+
+      - name: Convert to Uppercase and Output
+
+        run: |
+          INPUT="${{ inputs.input_string }}"
+          OUTPUT=$(echo $INPUT | tr '[:lower:]' '[:upper:]')
+          echo "Converted to uppercase: $OUTPUT"
+          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
+
+      - name: Check Result
+        run: echo "The final result is:${{ steps.test_job1.outputs.result }}"
